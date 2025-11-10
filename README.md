@@ -1,76 +1,127 @@
 # Interactive_english_club
 learn.speak.grow
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Club</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; padding: 0; text-align: center; }
-    header { background: #4f46e5; color: white; padding: 20px; }
-    main { margin: 20px; }
-    input { display: block; margin: 10px auto; padding: 10px; width: 250px; }
-    button { padding: 10px 20px; background: #4f46e5; color: white; border: none; cursor: pointer; }
-    button:hover { background: #4338ca; }
-    .projects { margin-top: 40px; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Welcome to Interactive Club</h1>
-  </header>
+// Simple client-side app using localStorage
+const STORAGE_USERS = 'iec_users_v1';
+const STORAGE_PROJECTS = 'iec_projects_v1';
 
-  <main>
-    <section class="register">
-      <h2>Register</h2>
-      <input type="text" id="name" placeholder="Full Name">
-      <input type="email" id="email" placeholder="Email">
-      <input type="password" id="password" placeholder="Password">
-      <button id="registerBtn">Register</button>
-      <p id="registerMessage"></p>
-    </section>
+function $(sel){return document.querySelector(sel);}
+function $all(sel){return document.querySelectorAll(sel);}
 
-    <section class="projects">
-      <h2>Available Projects / Lessons</h2>
-      <ul id="projectsList"></ul>
-    </section>
-  </main>
+function loadUsers(){return JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');}
+function saveUsers(u){localStorage.setItem(STORAGE_USERS, JSON.stringify(u));}
 
-  <script>
-    // Тіркелу функциясы
-    document.getElementById("registerBtn").addEventListener("click", () => {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+function loadProjects(){
+  let p = JSON.parse(localStorage.getItem(STORAGE_PROJECTS) || 'null');
+  if(!p){
+    // default demo projects
+    p = [
+      {id: 'p1', title: 'Speaking Practice', date: '2025-11-15', desc: 'Everyday communication. 16:00 - 17:00', seats: 15, joined: []},
+      {id: 'p2', title: 'Vocabulary Games', date: '2025-11-22', desc: 'Fun games to expand vocab', seats: 12, joined: []},
+      {id: 'p3', title: 'Drama Club', date: '2025-11-29', desc: 'Role-plays and short sketches', seats: 10, joined: []}
+    ];
+    localStorage.setItem(STORAGE_PROJECTS, JSON.stringify(p));
+  }
+  return JSON.parse(localStorage.getItem(STORAGE_PROJECTS));
+}
+function saveProjects(p){localStorage.setItem(STORAGE_PROJECTS, JSON.stringify(p));}
 
-      if (!name || !email || !password) {
-        document.getElementById("registerMessage").innerText = "Барлық өрістерді толтырыңыз!";
-        return;
-      }
+function registerUser(e){
+  e.preventDefault();
+  const fullName = $('#fullName').value.trim();
+  const grade = $('#grade').value;
+  const email = $('#email').value.trim();
+  const prefLang = $('#prefLang').value;
+  if(!fullName || !grade || !email) { alert('Please complete required fields'); return; }
+  const users = loadUsers();
+  if(users.find(u=>u.email===email)){ alert('This email already registered.'); return; }
+  const user = {id: 'u'+Date.now(), fullName, grade, email, prefLang, joined: []};
+  users.push(user);
+  saveUsers(users);
+  // store current session
+  localStorage.setItem('iec_current_user', user.id);
+  alert('Registration successful! Welcome, ' + fullName);
+  window.location.href = 'dashboard.html';
+}
 
-      let users = JSON.parse(localStorage.getItem("users") || "[]");
-      if (users.some(user => user.email === email)) {
-        document.getElementById("registerMessage").innerText = "Бұл email бұрын тіркелген!";
-        return;
-      }
+function initRegister(){
+  const form = $('#regForm');
+  if(form) form.addEventListener('submit', registerUser);
+}
 
-      users.push({ name, email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      document.getElementById("registerMessage").innerText = "Сәтті тіркелдіңіз!";
-      document.getElementById("name").value = "";
-      document.getElementById("email").value = "";
-      document.getElementById("password").value = "";
+function renderProjectsList(){
+  const list = $('#projectsList');
+  if(!list) return;
+  const projects = loadProjects();
+  list.innerHTML = '';
+  projects.forEach(p=>{
+    const div = document.createElement('div'); div.className='event card';
+    div.innerHTML = `<div>
+      <strong>${p.title}</strong><div class="small">${p.date} â¢ ${p.desc}</div>
+    </div>
+    <div>
+      <div class="small">Seats: ${p.seats - p.joined.length}</div>
+      <button class="button joinBtn" data-id="${p.id}">Join</button>
+    </div>`;
+    list.appendChild(div);
+  });
+  $all('.joinBtn').forEach(b=>b.addEventListener('click', joinProject));
+}
+
+function joinProject(e){
+  const id = e.currentTarget.dataset.id;
+  const cur = localStorage.getItem('iec_current_user');
+  if(!cur){ if(confirm('You must register first. Go to Register page?')) window.location.href='register.html'; return; }
+  const users = loadUsers();
+  const user = users.find(u=>u.id===cur);
+  if(!user){ alert('User not found'); return; }
+  const projects = loadProjects();
+  const project = projects.find(p=>p.id===id);
+  if(project.joined.includes(user.id)){ alert('You already joined this event'); return; }
+  if(project.joined.length >= project.seats){ alert('No seats available'); return; }
+  project.joined.push(user.id);
+  user.joined.push(project.id);
+  saveProjects(projects);
+  saveUsers(users);
+  alert('You have successfully joined "'+project.title+'"');
+  renderProjectsList();
+  if(window.location.pathname.endsWith('dashboard.html')) renderDashboard();
+}
+
+function renderDashboard(){
+  const cur = localStorage.getItem('iec_current_user');
+  if(!cur){ $('#profileArea').innerHTML = '<p>Please register first. <a href="register.html">Register</a></p>'; return; }
+  const users = loadUsers();
+  const user = users.find(u=>u.id===cur);
+  if(!user) return;
+  $('#profileName').textContent = user.fullName;
+  const pArea = $('#myProjects'); pArea.innerHTML = '';
+  const projects = loadProjects();
+  user.joined.forEach(pid=>{
+    const proj = projects.find(p=>p.id===pid);
+    if(!proj) return;
+    const div = document.createElement('div'); div.className='event card';
+    div.innerHTML = `<div><strong>${proj.title}</strong><div class="small">${proj.date}</div></div>
+      <div><button class="button leaveBtn" data-id="${proj.id}">Leave</button></div>`;
+    pArea.appendChild(div);
+  });
+  $all('.leaveBtn').forEach(b=>{
+    b.addEventListener('click', function(e){
+      const pid = e.currentTarget.dataset.id;
+      if(!confirm('Leave this project?')) return;
+      let users = loadUsers(); let projects = loadProjects();
+      const user = users.find(u=>u.id===localStorage.getItem('iec_current_user'));
+      const proj = projects.find(p=>p.id===pid);
+      proj.joined = proj.joined.filter(x=>x!==user.id);
+      user.joined = user.joined.filter(x=>x!==pid);
+      saveProjects(projects); saveUsers(users);
+      renderDashboard();
+      alert('You left the project.');
     });
+  });
+}
 
-    // Сабақтар / жобалар тізімі
-    const projects = ["Math Club", "Science Workshop", "Art Lesson", "English Debate"];
-    const projectsList = document.getElementById("projectsList");
-    projects.forEach(proj => {
-      const li = document.createElement("li");
-      li.innerText = proj;
-      projectsList.appendChild(li);
-    });
-  </script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', function(){
+  initRegister();
+  renderProjectsList();
+  renderDashboard();
+});
