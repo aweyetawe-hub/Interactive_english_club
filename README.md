@@ -3,89 +3,133 @@ learn.speak.grow
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Клубқа тіркелу</title>
-<style>
-body { font-family: Arial, sans-serif; margin: 20px; background: #f0f8ff; }
-h1, h2 { color: #333; }
-form, .admin-panel, .topic-section { background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-input, button, select { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;}
-button { cursor: pointer; background-color: #4CAF50; color: white; border: none;}
-button:hover { background-color: #45a049; }
-.hidden { display: none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тіл дамыту клубы</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f8ff; margin:0; padding:0; }
+        header { background:#4682b4; color:white; padding:20px; text-align:center; }
+        .container { max-width:600px; margin:30px auto; padding:20px; background:white; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+        input, button { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #ccc; }
+        button { background:#4682b4; color:white; border:none; cursor:pointer; }
+        button:hover { background:#315f7d; }
+        .hidden { display:none; }
+        .topic { padding:10px; border-bottom:1px solid #ccc; }
+        h3 { margin-top:0; }
+    </style>
 </head>
 <body>
 
-<h1>Клубқа тіркелу</h1>
+<header>
+    <h1>Тіл дамыту клубы</h1>
+</header>
 
-<div id="register-section">
-<form id="register-form">
-  <label>Аты-жөніңіз:</label>
-  <input type="text" id="name" required>
-  <label>Email:</label>
-  <input type="email" id="email" required>
-  <button type="submit">Тіркелу</button>
-</form>
+<!-- Тіркелу -->
+<div class="container" id="registerDiv">
+    <h2>Тіркелу</h2>
+    <input type="text" id="name" placeholder="Аты-жөніңіз" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button onclick="register()">Тіркелу</button>
 </div>
 
-<div id="topic-section" class="topic-section hidden">
-<h2>Апталық тақырып</h2>
-<p id="topic-text"></p>
-<p id="topic-place"></p>
-<button onclick="help()">Көмек</button>
+<!-- Оқушы панелі -->
+<div class="container hidden" id="studentDiv">
+    <h2>Сіз тіркелдіңіз!</h2>
+    <h3>Апталық тақырыптар</h3>
+    <div id="topicsList"></div>
+    <button onclick="helpMe()">Көмек</button>
 </div>
 
-<div id="admin-section" class="admin-panel hidden">
-<h2>Админ панелі</h2>
-<label>Апталық тақырыпты өзгерту:</label>
-<input type="text" id="admin-topic">
-<label>Орын/уақыты:</label>
-<input type="text" id="admin-place">
-<button onclick="updateTopic()">Сақтау</button>
+<!-- Админ панелі -->
+<div class="container hidden" id="adminDiv">
+    <h2>Админ панелі</h2>
+    <h3>Апталық тақырыптарды басқару</h3>
+    <div id="topicsListAdmin"></div>
+    <input type="text" id="newTopic" placeholder="Жаңа тақырып">
+    <button onclick="addTopic()">Қосу</button>
+    <button onclick="clearTopics()">Барлығын өшіру</button>
 </div>
 
 <script>
-// Жүйенің логикасы
-let currentUser = null;
+    // Алғашқы тақырыптар
+    let topics = ["Тілді дамыту мақсатындағы ішкі шараға қатысу"];
 
-// Алғашқы тақырып
-if(!localStorage.getItem('weeklyTopic')) {
-  localStorage.setItem('weeklyTopic', 'Тілді дамытуға арналған ішкі шара');
-  localStorage.setItem('weeklyPlace', 'Клуб бөлмесі, 14:00');
-}
+    function register() {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        if(name === "" || email === "") { alert("Барлық өрістерді толтырыңыз!"); return; }
 
-// Тіркелу
-document.getElementById('register-form').addEventListener('submit', function(e){
-  e.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  currentUser = {name, email};
-  localStorage.setItem('currentUser', JSON.stringify(currentUser));
-  
-  // Егер админ болса, админ панелін көрсету
-  if(email === 'admin@example.com'){
-    document.getElementById('admin-section').classList.remove('hidden');
-  }
-  
-  document.getElementById('register-section').classList.add('hidden');
-  document.getElementById('topic-section').classList.remove('hidden');
-  showTopic();
-});
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userEmail', email);
 
-// Апталық тақырыпты көрсету
-function showTopic(){
-  document.getElementById('topic-text').innerText = localStorage.getItem('weeklyTopic');
-  document.getElementById('topic-place').innerText = 'Орны/уақыты: ' + localStorage.getItem('weeklyPlace');
-}
+        document.getElementById('registerDiv').classList.add('hidden');
 
-// Көмек батырмасы
-function help(){
-  window.location.href = 'mailto:youremail@example.com?subject=Клубқа көмек';
-}
+        if(email === "aweyetawe@gmail.com") {
+            document.getElementById('adminDiv').classList.remove('hidden');
+            showTopicsAdmin();
+        } else {
+            document.getElementById('studentDiv').classList.remove('hidden');
+            showTopicsStudent();
+        }
+    }
 
-// Админ тақырыпты өзгерту
-function updateTopic(){
-  const newTopic = document.getElementById('admin-topic').value;
-  const newPlac
+    function showTopicsStudent() {
+        const list = document.getElementById('topicsList');
+        list.innerHTML = "";
+        topics.forEach((t, index) => {
+            const div = document.createElement('div');
+            div.className = "topic";
+            div.textContent = `${index + 1}. ${t}`;
+            list.appendChild(div);
+        });
+    }
+
+    function showTopicsAdmin() {
+        const list = document.getElementById('topicsListAdmin');
+        list.innerHTML = "";
+        topics.forEach((t, index) => {
+            const div = document.createElement('div');
+            div.className = "topic";
+            div.textContent = `${index + 1}. ${t}`;
+            list.appendChild(div);
+        });
+    }
+
+    function helpMe() {
+        const email = "aweyetawe@gmail.com";
+        window.location.href = `mailto:${email}?subject=Көмек&body=Сәлем! Менге көмек қажет.`;
+    }
+
+    function addTopic() {
+        const newTopic = document.getElementById('newTopic').value.trim();
+        if(newTopic === "") { alert("Тақырыпты енгізіңіз!"); return; }
+        topics.push(newTopic);
+        document.getElementById('newTopic').value = "";
+        showTopicsAdmin();
+    }
+
+    function clearTopics() {
+        if(confirm("Барлық тақырыптарды өшіргіңіз келе ме?")) {
+            topics = [];
+            showTopicsAdmin();
+        }
+    }
+
+    window.onload = () => {
+        const storedName = localStorage.getItem('userName');
+        const storedEmail = localStorage.getItem('userEmail');
+        if(storedName && storedEmail) {
+            document.getElementById('registerDiv').classList.add('hidden');
+            if(storedEmail === "aweyetawe@gmail.com") {
+                document.getElementById('adminDiv').classList.remove('hidden');
+                showTopicsAdmin();
+            } else {
+                document.getElementById('studentDiv').classList.remove('hidden');
+                showTopicsStudent();
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
