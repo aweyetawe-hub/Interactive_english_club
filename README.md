@@ -1,104 +1,47 @@
 # Interactive_english_club
 learn.speak.grow
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Student Panel</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
-        <h1>Welcome to Our English Club</h1>
-    </header>
+body{
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    color: #003366;
+    text-align: center;
+}
 
-    <div class="register">
-        <h2>Student Registration</h2>
-        <input type="text" id="name" placeholder="Your Name">
-        <input type="email" id="email" placeholder="Your Email">
-        <button onclick="registerStudent()">Register</button>
-    </div>
+header{
+    background-color: #003366;
+    color: white;
+    padding: 20px;
+}
 
-    <div class="topics" style="display:none;">
-        <h2>Weekly Topics</h2>
-        <ul id="topicList"></ul>
-    </div>
+.logo{
+    width: 100px;
+}
 
-    <div class="help" style="display:none;">
-        <button onclick="openChat()">Help</button>
-        <div id="chatBox" style="display:none;">
-            <div id="messages" class="messages"></div>
-            <input type="text" id="chatInput" placeholder="Type your message">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
+input, textarea, button{
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+}
 
-    <script>
-        let topics = JSON.parse(localStorage.getItem("topics")) || [];
-        let messages = JSON.parse(localStorage.getItem("messages")) || [];
+button{
+    background-color: #003366;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
 
-        function registerStudent(){
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            if(!name || !email){
-                alert("Please enter name and email!");
-                return;
-            }
-            localStorage.setItem("studentName", name);
-            localStorage.setItem("studentEmail", email);
-            alert("Registered successfully!");
-            showTopics();
-        }
+button:hover{
+    background-color: #0055aa;
+}
 
-        function showTopics(){
-            document.querySelector(".register").style.display = "none";
-            document.querySelector(".topics").style.display = "block";
-            document.querySelector(".help").style.display = "block";
-
-            let list = document.getElementById("topicList");
-            list.innerHTML = "";
-            topics.forEach((t, i)=>{
-                let li = document.createElement("li");
-                li.innerHTML = `<b>${t.title}</b>: ${t.description} 
-                <button onclick="joinEvent(${i})">I want to join</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function joinEvent(index){
-            alert(`You have joined: ${topics[index].title}`);
-        }
-
-        function openChat(){
-            document.getElementById("chatBox").style.display = "block";
-            renderMessages();
-        }
-
-        function sendMessage(){
-            let input = document.getElementById("chatInput");
-            if(input.value.trim() === "") return;
-            messages.push({sender: localStorage.getItem("studentName") || "Student", text: input.value});
-            localStorage.setItem("messages", JSON.stringify(messages));
-            input.value = "";
-            renderMessages();
-        }
-
-        function renderMessages(){
-            let box = document.getElementById("messages");
-            box.innerHTML = "";
-            messages.forEach(msg=>{
-                let div = document.createElement("div");
-                div.textContent = msg.sender + ": " + msg.text;
-                box.appendChild(div);
-            });
-        }
-
-        if(localStorage.getItem("studentName")){
-            showTopics();
-        }
-    </script>
-</body>
-</html>
+.messages{
+    border:1px solid #003366;
+    height:200px;
+    overflow-y:auto;
+    margin:10px;
+    padding:10px;
+    background-color:white;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,46 +150,103 @@ learn.speak.grow
     </script>
 </body>
 </html>
-body{
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    color: #003366;
-    text-align: center;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
+        <h1>Welcome to Our English Club</h1>
+    </header>
 
-header{
-    background-color: #003366;
-    color: white;
-    padding: 20px;
-}
+    <div class="register">
+        <h2>Student Registration</h2>
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="email" id="email" placeholder="Your Email">
+        <button onclick="registerStudent()">Register</button>
+    </div>
 
-.logo{
-    width: 100px;
-}
+    <div class="topics" style="display:none;">
+        <h2>Weekly Topics</h2>
+        <ul id="topicList"></ul>
+    </div>
 
-input, textarea, button{
-    padding: 10px;
-    margin: 5px;
-    border-radius: 5px;
-}
+    <div class="help" style="display:none;">
+        <button onclick="openChat()">Help</button>
+        <div id="chatBox" style="display:none;">
+            <div id="messages" class="messages"></div>
+            <input type="text" id="chatInput" placeholder="Type your message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 
-button{
-    background-color: #003366;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
+    <script>
+        let topics = JSON.parse(localStorage.getItem("topics")) || [];
+        let messages = JSON.parse(localStorage.getItem("messages")) || [];
 
-button:hover{
-    background-color: #0055aa;
-}
+        function registerStudent(){
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            if(!name || !email){
+                alert("Please enter name and email!");
+                return;
+            }
+            localStorage.setItem("studentName", name);
+            localStorage.setItem("studentEmail", email);
+            alert("Registered successfully!");
+            showTopics();
+        }
 
-.messages{
-    border:1px solid #003366;
-    height:200px;
-    overflow-y:auto;
-    margin:10px;
-    padding:10px;
-    background-color:white;
-}
-0
+        function showTopics(){
+            document.querySelector(".register").style.display = "none";
+            document.querySelector(".topics").style.display = "block";
+            document.querySelector(".help").style.display = "block";
+
+            let list = document.getElementById("topicList");
+            list.innerHTML = "";
+            topics.forEach((t, i)=>{
+                let li = document.createElement("li");
+                li.innerHTML = `<b>${t.title}</b>: ${t.description} 
+                <button onclick="joinEvent(${i})">I want to join</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function joinEvent(index){
+            alert(`You have joined: ${topics[index].title}`);
+        }
+
+        function openChat(){
+            document.getElementById("chatBox").style.display = "block";
+            renderMessages();
+        }
+
+        function sendMessage(){
+            let input = document.getElementById("chatInput");
+            if(input.value.trim() === "") return;
+            messages.push({sender: localStorage.getItem("studentName") || "Student", text: input.value});
+            localStorage.setItem("messages", JSON.stringify(messages));
+            input.value = "";
+            renderMessages();
+        }
+
+        function renderMessages(){
+            let box = document.getElementById("messages");
+            box.innerHTML = "";
+            messages.forEach(msg=>{
+                let div = document.createElement("div");
+                div.textContent = msg.sender + ": " + msg.text;
+                box.appendChild(div);
+            });
+        }
+
+        if(localStorage.getItem("studentName")){
+            showTopics();
+        }
+    </script>
+</body>
+</html>
