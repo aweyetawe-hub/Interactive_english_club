@@ -3,194 +3,251 @@ learn.speak.grow
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Language Club</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #e6f0ff; /* жеңіл көк фон */
-    margin: 0;
-    padding: 0;
-}
-header {
-    background: #004aad; /* қою көк */
-    color: white;
-    padding: 20px;
-    font-size: 24px;
-}
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s;
-    background-color: #004aad; /* қою көк кнопка */
-    color: white;
-}
-button:hover { opacity: 0.8; }
-.container { margin-top: 50px; }
-.card {
-    background: white; /* ақ фон */
-    padding: 20px;
-    margin: 20px auto;
-    width: 350px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-.hidden { display: none; }
-img { width: 100px; margin-top: 10px; }
-input, textarea { width: 90%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
-</style>
+    <meta charset="UTF-8">
+    <title>Student Panel</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header>
+        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
+        <h1>Welcome to Our English Club</h1>
+    </header>
 
-<header>
-    <img id="logo" src="https://via.placeholder.com/100" alt="Logo">
-    <div>Language Development Club</div>
-</header>
-
-<div class="container" id="mainContainer">
-    <button onclick="showRegister()">Register</button>
-    <button onclick="showLogin()">Login</button>
-</div>
-
-<!-- Register -->
-<div class="container hidden" id="registerContainer">
-    <div class="card">
-        <h3>Register</h3>
-        <input type="text" id="name" placeholder="Your Name"><br>
-        <input type="email" id="email" placeholder="Email"><br>
-        <button id="registerBtn">Register</button>
-        <button onclick="goBack()">Back</button>
+    <div class="register">
+        <h2>Student Registration</h2>
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="email" id="email" placeholder="Your Email">
+        <button onclick="registerStudent()">Register</button>
     </div>
-</div>
 
-<!-- Login -->
-<div class="container hidden" id="loginContainer">
-    <div class="card">
-        <h3>Login</h3>
-        <input type="email" id="loginEmail" placeholder="Email"><br>
-        <button id="loginBtn">Login</button>
-        <button onclick="goBack()">Back</button>
+    <div class="topics" style="display:none;">
+        <h2>Weekly Topics</h2>
+        <ul id="topicList"></ul>
     </div>
-</div>
 
-<!-- Student Page -->
-<div class="container hidden" id="studentContainer">
-    <div class="card">
-        <h3>Welcome, <span id="studentName"></span>!</h3>
-        <p>Weekly Topic: <strong id="weeklyTopic">Language Improvement Activity</strong></p>
-        <p id="topicDescription">Join to improve your English skills.</p>
-        <button onclick="joinActivity()">I want to join</button><br>
-        <button onclick="sendHelp()">Help</button><br>
-        <button onclick="logout()">Logout</button>
+    <div class="help" style="display:none;">
+        <button onclick="openChat()">Help</button>
+        <div id="chatBox" style="display:none;">
+            <div id="messages" class="messages"></div>
+            <input type="text" id="chatInput" placeholder="Type your message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
-</div>
 
-<!-- Admin Page -->
-<div class="container hidden" id="adminContainer">
-    <div class="card">
-        <h3>Admin Panel</h3>
-        <input type="text" id="newTopic" placeholder="New Topic"><br>
-        <textarea id="newDesc" placeholder="Topic Description"></textarea><br>
-        <input type="text" id="newLogo" placeholder="Logo URL"><br>
-        <button onclick="updateTopic()">Update Topic</button><br>
-        <button onclick="logout()">Logout</button>
-    </div>
-</div>
+    <script>
+        let topics = JSON.parse(localStorage.getItem("topics")) || [];
+        let messages = JSON.parse(localStorage.getItem("messages")) || [];
 
-<script>
-const registerBtn = document.getElementById('registerBtn');
-const loginBtn = document.getElementById('loginBtn');
-
-function showRegister(){
-    document.getElementById('mainContainer').classList.add('hidden');
-    document.getElementById('registerContainer').classList.remove('hidden');
-}
-function showLogin(){
-    document.getElementById('mainContainer').classList.add('hidden');
-    document.getElementById('loginContainer').classList.remove('hidden');
-}
-function goBack(){
-    document.getElementById('registerContainer').classList.add('hidden');
-    document.getElementById('loginContainer').classList.add('hidden');
-    document.getElementById('mainContainer').classList.remove('hidden');
-}
-
-// Register
-registerBtn.addEventListener('click', ()=>{
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    if(!name || !email){ alert('Please fill all fields'); return;}
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
-    if(users.find(u=>u.email===email)){ alert('This email is already registered'); return;}
-    users.push({name,email});
-    localStorage.setItem('users', JSON.stringify(users));
-    alert('Registered successfully!');
-    goBack();
-});
-
-// Login
-loginBtn.addEventListener('click', ()=>{
-    const email = document.getElementById('loginEmail').value.trim();
-    if(email==='aweyetawe@gmail.com'){
-        document.getElementById('loginContainer').classList.add('hidden');
-        document.getElementById('adminContainer').classList.remove('hidden');
-    } else {
-        let users = JSON.parse(localStorage.getItem('users') || '[]');
-        let user = users.find(u=>u.email===email);
-        if(user){
-            document.getElementById('loginContainer').classList.add('hidden');
-            document.getElementById('studentContainer').classList.remove('hidden');
-            document.getElementById('studentName').innerText = user.name;
-        } else {
-            alert('Email not registered!');
+        function registerStudent(){
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            if(!name || !email){
+                alert("Please enter name and email!");
+                return;
+            }
+            localStorage.setItem("studentName", name);
+            localStorage.setItem("studentEmail", email);
+            alert("Registered successfully!");
+            showTopics();
         }
-    }
-});
 
-function logout(){
-    document.getElementById('adminContainer').classList.add('hidden');
-    document.getElementById('studentContainer').classList.add('hidden');
-    document.getElementById('mainContainer').classList.remove('hidden');
-}
-function sendHelp(){
-    window.location.href='mailto:aweyetawe@gmail.com?subject=Help';
-}
-function joinActivity(){
-    alert('You have joined this activity!');
-}
-function updateTopic(){
-    const topic = document.getElementById('newTopic').value.trim();
-    const desc = document.getElementById('newDesc').value.trim();
-    const logoURL = document.getElementById('newLogo').value.trim();
-    if(topic){ 
-        localStorage.setItem('weeklyTopic', topic);
-        document.getElementById('weeklyTopic').innerText = topic;
-    }
-    if(desc){ 
-        localStorage.setItem('topicDesc', desc);
-        document.getElementById('topicDescription').innerText = desc;
-    }
-    if(logoURL){
-        localStorage.setItem('logoURL', logoURL);
-        document.getElementById('logo').src = logoURL;
-    }
-    alert('Topic updated successfully!');
-}
+        function showTopics(){
+            document.querySelector(".register").style.display = "none";
+            document.querySelector(".topics").style.display = "block";
+            document.querySelector(".help").style.display = "block";
 
-window.onload = function(){
-    const topic = localStorage.getItem('weeklyTopic');
-    if(topic) document.getElementById('weeklyTopic').innerText = topic;
-    const desc = localStorage.getItem('topicDesc');
-    if(desc) document.getElementById('topicDescription').innerText = desc;
-    const logoURL = localStorage.getItem('logoURL');
-    if(logoURL) document.getElementById('logo').src = logoURL;
-}
-</script>
+            let list = document.getElementById("topicList");
+            list.innerHTML = "";
+            topics.forEach((t, i)=>{
+                let li = document.createElement("li");
+                li.innerHTML = `<b>${t.title}</b>: ${t.description} 
+                <button onclick="joinEvent(${i})">I want to join</button>`;
+                list.appendChild(li);
+            });
+        }
 
+        function joinEvent(index){
+            alert(`You have joined: ${topics[index].title}`);
+        }
+
+        function openChat(){
+            document.getElementById("chatBox").style.display = "block";
+            renderMessages();
+        }
+
+        function sendMessage(){
+            let input = document.getElementById("chatInput");
+            if(input.value.trim() === "") return;
+            messages.push({sender: localStorage.getItem("studentName") || "Student", text: input.value});
+            localStorage.setItem("messages", JSON.stringify(messages));
+            input.value = "";
+            renderMessages();
+        }
+
+        function renderMessages(){
+            let box = document.getElementById("messages");
+            box.innerHTML = "";
+            messages.forEach(msg=>{
+                let div = document.createElement("div");
+                div.textContent = msg.sender + ": " + msg.text;
+                box.appendChild(div);
+            });
+        }
+
+        if(localStorage.getItem("studentName")){
+            showTopics();
+        }
+    </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
+        <h1>Admin Panel</h1>
+    </header>
+
+    <div class="login">
+        <input type="email" id="adminEmail" placeholder="Admin Email">
+        <button onclick="loginAdmin()">Login</button>
+    </div>
+
+    <div class="admin" style="display:none;">
+        <h2>Add Weekly Topic</h2>
+        <input type="text" id="topicTitle" placeholder="Topic Title">
+        <textarea id="topicDesc" placeholder="Topic Description"></textarea>
+        <button onclick="addTopic()">Add Topic</button>
+
+        <h2>Change Logo</h2>
+        <input type="file" id="logoFile">
+        <button onclick="changeLogo()">Update Logo</button>
+
+        <h2>Help Chat</h2>
+        <button onclick="openChat()">Open Student Messages</button>
+        <div id="chatBox" style="display:none;">
+            <div id="messages" class="messages"></div>
+            <input type="text" id="chatInput" placeholder="Type your reply">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const adminEmail = "aweyetawe@gmail.com";
+        let topics = JSON.parse(localStorage.getItem("topics")) || [];
+        let messages = JSON.parse(localStorage.getItem("messages")) || [];
+
+        function loginAdmin(){
+            let email = document.getElementById("adminEmail").value;
+            if(email !== adminEmail){
+                alert("Access denied!");
+                return;
+            }
+            document.querySelector(".login").style.display = "none";
+            document.querySelector(".admin").style.display = "block";
+        }
+
+        function addTopic(){
+            let title = document.getElementById("topicTitle").value;
+            let desc = document.getElementById("topicDesc").value;
+            if(!title || !desc){
+                alert("Enter title and description");
+                return;
+            }
+            topics.push({title:title, description:desc});
+            localStorage.setItem("topics", JSON.stringify(topics));
+            alert("Topic added!");
+        }
+
+        function changeLogo(){
+            const file = document.getElementById("logoFile").files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    document.getElementById("logo").src = e.target.result;
+                    localStorage.setItem("logo", e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openChat(){
+            document.getElementById("chatBox").style.display = "block";
+            renderMessages();
+        }
+
+        function sendMessage(){
+            let input = document.getElementById("chatInput");
+            if(input.value.trim() === "") return;
+            messages.push({sender:"Admin", text: input.value});
+            localStorage.setItem("messages", JSON.stringify(messages));
+            input.value = "";
+            renderMessages();
+        }
+
+        function renderMessages(){
+            let box = document.getElementById("messages");
+            box.innerHTML = "";
+            messages.forEach(msg=>{
+                let div = document.createElement("div");
+                div.textContent = msg.sender + ": " + msg.text;
+                box.appendChild(div);
+            });
+        }
+
+        // restore logo if exists
+        const savedLogo = localStorage.getItem("logo");
+        if(savedLogo){
+            document.getElementById("logo").src = savedLogo;
+        }
+    </script>
+</body>
+</html>
+body{
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    color: #003366;
+    text-align: center;
+}
+
+header{
+    background-color: #003366;
+    color: white;
+    padding: 20px;
+}
+
+.logo{
+    width: 100px;
+}
+
+input, textarea, button{
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+button{
+    background-color: #003366;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: #0055aa;
+}
+
+.messages{
+    border:1px solid #003366;
+    height:200px;
+    overflow-y:auto;
+    margin:10px;
+    padding:10px;
+    background-color:white;
+}
+0
