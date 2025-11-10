@@ -1,6 +1,5 @@
 # Interactive_english_club
 learn.speak.grow
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
