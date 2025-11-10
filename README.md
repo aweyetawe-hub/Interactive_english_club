@@ -8,7 +8,8 @@ learn.speak.grow
     <title>Тіл дамыту клубы</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f8ff; margin:0; padding:0; }
-        header { background:#4682b4; color:white; padding:20px; text-align:center; }
+        header { background:#4682b4; color:white; padding:20px; text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;}
+        header img { height:50px; }
         .container { max-width:600px; margin:30px auto; padding:20px; background:white; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
         input, button { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #ccc; }
         button { background:#4682b4; color:white; border:none; cursor:pointer; }
@@ -21,6 +22,7 @@ learn.speak.grow
 <body>
 
 <header>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Kazakhstan_emblem.png" alt="Клуб эмблемасы">
     <h1>Тіл дамыту клубы</h1>
 </header>
 
@@ -54,6 +56,8 @@ learn.speak.grow
     // Алғашқы тақырыптар
     let topics = ["Тілді дамыту мақсатындағы ішкі шараға қатысу"];
 
+    const adminEmail = "aweyetawe@gmail.com";
+
     function register() {
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -64,7 +68,7 @@ learn.speak.grow
 
         document.getElementById('registerDiv').classList.add('hidden');
 
-        if(email === "aweyetawe@gmail.com") {
+        if(email === adminEmail) {
             document.getElementById('adminDiv').classList.remove('hidden');
             showTopicsAdmin();
         } else {
@@ -96,8 +100,7 @@ learn.speak.grow
     }
 
     function helpMe() {
-        const email = "aweyetawe@gmail.com";
-        window.location.href = `mailto:${email}?subject=Көмек&body=Сәлем! Менге көмек қажет.`;
+        window.location.href = `mailto:${adminEmail}?subject=Көмек&body=Сәлем! Менге көмек қажет.`;
     }
 
     function addTopic() {
@@ -120,7 +123,7 @@ learn.speak.grow
         const storedEmail = localStorage.getItem('userEmail');
         if(storedName && storedEmail) {
             document.getElementById('registerDiv').classList.add('hidden');
-            if(storedEmail === "aweyetawe@gmail.com") {
+            if(storedEmail === adminEmail) {
                 document.getElementById('adminDiv').classList.remove('hidden');
                 showTopicsAdmin();
             } else {
