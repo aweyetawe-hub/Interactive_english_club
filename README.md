@@ -3,215 +3,217 @@ learn.speak.grow
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>English Club</title>
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            color: #003366;
-            text-align: center;
-        }
-        header{
-            background-color: #003366;
-            color: white;
-            padding: 20px;
-        }
-        .logo{
-            width: 100px;
-        }
-        input, textarea, button{
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-        }
-        button{
-            background-color: #003366;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover{
-            background-color: #0055aa;
-        }
-        .messages{
-            border:1px solid #003366;
-            height:200px;
-            overflow-y:auto;
-            margin:10px;
-            padding:10px;
-            background-color:white;
-        }
-        .section{
-            margin:20px;
-            display:none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language Club</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #e6f0ff; /* light blue */
+        margin: 0;
+        padding: 0;
+        color: #003366; /* dark blue text */
+    }
+    header {
+        background-color: #003366;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    header img {
+        height: 50px;
+    }
+    nav button {
+        margin-left: 10px;
+        padding: 8px 15px;
+        background-color: white;
+        color: #003366;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    nav button:hover {
+        background-color: #b3d1ff;
+    }
+    main {
+        padding: 20px;
+    }
+    .hidden {
+        display: none;
+    }
+    input, textarea, select {
+        padding: 8px;
+        margin: 5px 0 15px 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .btn {
+        background-color: #003366;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .btn:hover {
+        background-color: #002244;
+    }
+    .topic-card {
+        border: 1px solid #003366;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        background-color: white;
+    }
+</style>
 </head>
 <body>
-    <header>
-        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
-        <h1>English Club</h1>
-    </header>
+<header>
+    <img id="logo" src="logo.png" alt="Club Logo">
+    <nav>
+        <button id="loginBtn">Login/Register</button>
+        <button id="helpBtn">Help</button>
+    </nav>
+</header>
 
-    <div id="loginSection" class="section" style="display:block;">
-        <h2>Login as Admin</h2>
-        <input type="email" id="adminEmail" placeholder="Admin Email">
-        <button onclick="loginAdmin()">Login</button>
+<main>
+    <!-- Login/Register -->
+    <div id="authDiv">
+        <h2>Login / Register</h2>
+        <input type="email" id="emailInput" placeholder="Enter your email">
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button class="btn" id="loginRegisterBtn">Login / Register</button>
+        <p id="authMsg"></p>
     </div>
 
-    <div id="adminSection" class="section">
+    <!-- Admin Panel -->
+    <div id="adminDiv" class="hidden">
         <h2>Admin Panel</h2>
-        <h3>Add Weekly Topic</h3>
-        <input type="text" id="topicTitle" placeholder="Topic Title">
-        <textarea id="topicDesc" placeholder="Topic Description"></textarea>
-        <button onclick="addTopic()">Add Topic</button>
-
-        <h3>Change Logo</h3>
-        <input type="file" id="logoFile">
-        <button onclick="changeLogo()">Update Logo</button>
-
-        <h3>Help Chat</h3>
-        <button onclick="toggleChat()">Open Student Messages</button>
-        <div id="chatBox" style="display:none;">
-            <div id="messages" class="messages"></div>
-            <input type="text" id="chatInput" placeholder="Type your reply">
-            <button onclick="sendMessage()">Send</button>
-        </div>
+        <input type="text" id="newTopic" placeholder="Topic Name">
+        <textarea id="newTopicDesc" placeholder="Topic Description"></textarea>
+        <input type="text" id="eventLocation" placeholder="Event Location">
+        <input type="text" id="logoURL" placeholder="Logo URL (change logo)">
+        <button class="btn" id="addTopicBtn">Add Topic</button>
+        <h3>Current Topics:</h3>
+        <div id="topicsList"></div>
     </div>
 
-    <div id="studentSection" class="section">
-        <h2>Student Registration</h2>
-        <input type="text" id="name" placeholder="Your Name">
-        <input type="email" id="email" placeholder="Your Email">
-        <button onclick="registerStudent()">Register</button>
-
-        <div id="topicsDiv" style="display:none;">
-            <h2>Weekly Topics</h2>
-            <ul id="topicList"></ul>
-        </div>
-
-        <div id="helpDiv" style="display:none;">
-            <button onclick="toggleChat()">Help</button>
-        </div>
+    <!-- User Panel -->
+    <div id="userDiv" class="hidden">
+        <h2>Welcome to Language Club!</h2>
+        <div id="userTopicsList"></div>
     </div>
+</main>
 
-    <script>
-        const adminEmail = "aweyetawe@gmail.com";
-        let topics = JSON.parse(localStorage.getItem("topics")) || [];
-        let messages = JSON.parse(localStorage.getItem("messages")) || [];
+<script>
+const adminEmail = "aweyetawe@gmail.com";
 
-        // --- Admin Login ---
-        function loginAdmin(){
-            let email = document.getElementById("adminEmail").value;
-            if(email !== adminEmail){
-                alert("Access denied!");
-                return;
-            }
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("adminSection").style.display = "block";
-        }
+let users = [];
+let topics = [];
 
-        // --- Admin Functions ---
-        function addTopic(){
-            let title = document.getElementById("topicTitle").value;
-            let desc = document.getElementById("topicDesc").value;
-            if(!title || !desc){
-                alert("Enter title and description");
-                return;
-            }
-            topics.push({title:title, description:desc});
-            localStorage.setItem("topics", JSON.stringify(topics));
-            alert("Topic added!");
-        }
+const authDiv = document.getElementById("authDiv");
+const adminDiv = document.getElementById("adminDiv");
+const userDiv = document.getElementById("userDiv");
 
-        function changeLogo(){
-            const file = document.getElementById("logoFile").files[0];
-            if(file){
-                const reader = new FileReader();
-                reader.onload = function(e){
-                    document.getElementById("logo").src = e.target.result;
-                    localStorage.setItem("logo", e.target.result);
-                }
-                reader.readAsDataURL(file);
-            }
-        }
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const authMsg = document.getElementById("authMsg");
 
-        function toggleChat(){
-            const chatBox = document.getElementById("chatBox");
-            chatBox.style.display = chatBox.style.display==="none"?"block":"none";
-            renderMessages();
-        }
+const loginRegisterBtn = document.getElementById("loginRegisterBtn");
 
-        function sendMessage(){
-            let input = document.getElementById("chatInput");
-            if(input.value.trim() === "") return;
-            let sender = document.getElementById("adminSection").style.display === "block" ? "Admin" : localStorage.getItem("studentName");
-            messages.push({sender:sender, text: input.value});
-            localStorage.setItem("messages", JSON.stringify(messages));
-            input.value = "";
-            renderMessages();
-        }
+const newTopic = document.getElementById("newTopic");
+const newTopicDesc = document.getElementById("newTopicDesc");
+const eventLocation = document.getElementById("eventLocation");
+const logoURL = document.getElementById("logoURL");
+const addTopicBtn = document.getElementById("addTopicBtn");
+const topicsList = document.getElementById("topicsList");
+const userTopicsList = document.getElementById("userTopicsList");
 
-        function renderMessages(){
-            let box = document.getElementById("messages");
-            box.innerHTML = "";
-            messages.forEach(msg=>{
-                let div = document.createElement("div");
-                div.textContent = msg.sender + ": " + msg.text;
-                box.appendChild(div);
-            });
-        }
+const logoImg = document.getElementById("logo");
+const helpBtn = document.getElementById("helpBtn");
 
-        // --- Student Functions ---
-        function registerStudent(){
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            if(!name || !email){
-                alert("Please enter name and email!");
-                return;
-            }
-            localStorage.setItem("studentName", name);
-            localStorage.setItem("studentEmail", email);
-            alert("Registered successfully!");
-            showTopics();
-        }
+let currentUser = null;
 
-        function showTopics(){
-            document.getElementById("studentSection").style.display = "block";
-            document.getElementById("topicsDiv").style.display = "block";
-            document.getElementById("helpDiv").style.display = "block";
-            document.getElementById("name").style.display = "none";
-            document.getElementById("email").style.display = "none";
+loginRegisterBtn.addEventListener("click", () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if(!email || !password) {
+        authMsg.textContent = "Please enter email and password.";
+        return;
+    }
 
-            let list = document.getElementById("topicList");
-            list.innerHTML = "";
-            topics.forEach((t, i)=>{
-                let li = document.createElement("li");
-                li.innerHTML = `<b>${t.title}</b>: ${t.description} 
-                <button onclick="joinEvent(${i})">I want to join</button>`;
-                list.appendChild(li);
-            });
-        }
+    if(email === adminEmail) {
+        currentUser = {email, role: "admin"};
+        authDiv.classList.add("hidden");
+        adminDiv.classList.remove("hidden");
+        renderTopicsAdmin();
+        authMsg.textContent = "";
+    } else {
+        currentUser = {email, role: "user", joined: []};
+        users.push(currentUser);
+        authDiv.classList.add("hidden");
+        userDiv.classList.remove("hidden");
+        renderTopicsUser();
+        authMsg.textContent = "";
+    }
+});
 
-        function joinEvent(index){
-            alert(`You have joined: ${topics[index].title}`);
-        }
+addTopicBtn.addEventListener("click", () => {
+    const name = newTopic.value.trim();
+    const desc = newTopicDesc.value.trim();
+    const location = eventLocation.value.trim();
+    if(!name || !desc || !location) {
+        alert("Please fill all fields.");
+        return;
+    }
+    topics.push({name, desc, location});
+    newTopic.value = "";
+    newTopicDesc.value = "";
+    eventLocation.value = "";
+    renderTopicsAdmin();
+    renderTopicsUser();
+    if(logoURL.value.trim()) {
+        logoImg.src = logoURL.value.trim();
+    }
+});
 
-        // Restore logo
-        const savedLogo = localStorage.getItem("logo");
-        if(savedLogo){
-            document.getElementById("logo").src = savedLogo;
-        }
+function renderTopicsAdmin() {
+    topicsList.innerHTML = "";
+    topics.forEach((t,i) => {
+        const div = document.createElement("div");
+        div.className = "topic-card";
+        div.innerHTML = `<strong>${t.name}</strong><p>${t.desc}</p><p>Location: ${t.location}</p>`;
+        topicsList.appendChild(div);
+    });
+}
 
-        // Show student if already registered
-        if(localStorage.getItem("studentName")){
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("studentSection").style.display = "block";
-            showTopics();
-        }else{
-            document.getElementById("studentSection").style.display = "block";
-        }
-    </script>
+function renderTopicsUser() {
+    userTopicsList.innerHTML = "";
+    topics.forEach((t,i) => {
+        const div = document.createElement("div");
+        div.className = "topic-card";
+        div.innerHTML = `<strong>${t.name}</strong><p>${t.desc}</p><p>Location: ${t.location}</p><button class="btn" onclick="joinTopic(${i})">Join Event</button>`;
+        userTopicsList.appendChild(div);
+    });
+}
+
+function joinTopic(index) {
+    if(currentUser.role !== "user") return;
+    if(!currentUser.joined.includes(index)) {
+        currentUser.joined.push(index);
+        alert(`You joined "${topics[index].name}"`);
+    } else {
+        alert("You already joined this event.");
+    }
+}
+
+helpBtn.addEventListener("click", () => {
+    window.location.href = "mailto:aweyetawe@gmail.com";
+});
+</script>
 </body>
 </html>
