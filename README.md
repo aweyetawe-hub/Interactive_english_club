@@ -1,81 +1,98 @@
 # Interactive_english_club
 learn.speak.grow
-body{
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    color: #003366;
-    text-align: center;
-}
-
-header{
-    background-color: #003366;
-    color: white;
-    padding: 20px;
-}
-
-.logo{
-    width: 100px;
-}
-
-input, textarea, button{
-    padding: 10px;
-    margin: 5px;
-    border-radius: 5px;
-}
-
-button{
-    background-color: #003366;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover{
-    background-color: #0055aa;
-}
-
-.messages{
-    border:1px solid #003366;
-    height:200px;
-    overflow-y:auto;
-    margin:10px;
-    padding:10px;
-    background-color:white;
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <title>English Club</title>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #003366;
+            text-align: center;
+        }
+        header{
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+        }
+        .logo{
+            width: 100px;
+        }
+        input, textarea, button{
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        button{
+            background-color: #003366;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover{
+            background-color: #0055aa;
+        }
+        .messages{
+            border:1px solid #003366;
+            height:200px;
+            overflow-y:auto;
+            margin:10px;
+            padding:10px;
+            background-color:white;
+        }
+        .section{
+            margin:20px;
+            display:none;
+        }
+    </style>
 </head>
 <body>
     <header>
         <img id="logo" src="logo.png" alt="Club Logo" class="logo">
-        <h1>Admin Panel</h1>
+        <h1>English Club</h1>
     </header>
 
-    <div class="login">
+    <div id="loginSection" class="section" style="display:block;">
+        <h2>Login as Admin</h2>
         <input type="email" id="adminEmail" placeholder="Admin Email">
         <button onclick="loginAdmin()">Login</button>
     </div>
 
-    <div class="admin" style="display:none;">
-        <h2>Add Weekly Topic</h2>
+    <div id="adminSection" class="section">
+        <h2>Admin Panel</h2>
+        <h3>Add Weekly Topic</h3>
         <input type="text" id="topicTitle" placeholder="Topic Title">
         <textarea id="topicDesc" placeholder="Topic Description"></textarea>
         <button onclick="addTopic()">Add Topic</button>
 
-        <h2>Change Logo</h2>
+        <h3>Change Logo</h3>
         <input type="file" id="logoFile">
         <button onclick="changeLogo()">Update Logo</button>
 
-        <h2>Help Chat</h2>
-        <button onclick="openChat()">Open Student Messages</button>
+        <h3>Help Chat</h3>
+        <button onclick="toggleChat()">Open Student Messages</button>
         <div id="chatBox" style="display:none;">
             <div id="messages" class="messages"></div>
             <input type="text" id="chatInput" placeholder="Type your reply">
             <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <div id="studentSection" class="section">
+        <h2>Student Registration</h2>
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="email" id="email" placeholder="Your Email">
+        <button onclick="registerStudent()">Register</button>
+
+        <div id="topicsDiv" style="display:none;">
+            <h2>Weekly Topics</h2>
+            <ul id="topicList"></ul>
+        </div>
+
+        <div id="helpDiv" style="display:none;">
+            <button onclick="toggleChat()">Help</button>
         </div>
     </div>
 
@@ -84,16 +101,18 @@ button:hover{
         let topics = JSON.parse(localStorage.getItem("topics")) || [];
         let messages = JSON.parse(localStorage.getItem("messages")) || [];
 
+        // --- Admin Login ---
         function loginAdmin(){
             let email = document.getElementById("adminEmail").value;
             if(email !== adminEmail){
                 alert("Access denied!");
                 return;
             }
-            document.querySelector(".login").style.display = "none";
-            document.querySelector(".admin").style.display = "block";
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("adminSection").style.display = "block";
         }
 
+        // --- Admin Functions ---
         function addTopic(){
             let title = document.getElementById("topicTitle").value;
             let desc = document.getElementById("topicDesc").value;
@@ -118,15 +137,17 @@ button:hover{
             }
         }
 
-        function openChat(){
-            document.getElementById("chatBox").style.display = "block";
+        function toggleChat(){
+            const chatBox = document.getElementById("chatBox");
+            chatBox.style.display = chatBox.style.display==="none"?"block":"none";
             renderMessages();
         }
 
         function sendMessage(){
             let input = document.getElementById("chatInput");
             if(input.value.trim() === "") return;
-            messages.push({sender:"Admin", text: input.value});
+            let sender = document.getElementById("adminSection").style.display === "block" ? "Admin" : localStorage.getItem("studentName");
+            messages.push({sender:sender, text: input.value});
             localStorage.setItem("messages", JSON.stringify(messages));
             input.value = "";
             renderMessages();
@@ -142,52 +163,7 @@ button:hover{
             });
         }
 
-        // restore logo if exists
-        const savedLogo = localStorage.getItem("logo");
-        if(savedLogo){
-            document.getElementById("logo").src = savedLogo;
-        }
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Student Panel</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <img id="logo" src="logo.png" alt="Club Logo" class="logo">
-        <h1>Welcome to Our English Club</h1>
-    </header>
-
-    <div class="register">
-        <h2>Student Registration</h2>
-        <input type="text" id="name" placeholder="Your Name">
-        <input type="email" id="email" placeholder="Your Email">
-        <button onclick="registerStudent()">Register</button>
-    </div>
-
-    <div class="topics" style="display:none;">
-        <h2>Weekly Topics</h2>
-        <ul id="topicList"></ul>
-    </div>
-
-    <div class="help" style="display:none;">
-        <button onclick="openChat()">Help</button>
-        <div id="chatBox" style="display:none;">
-            <div id="messages" class="messages"></div>
-            <input type="text" id="chatInput" placeholder="Type your message">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
-
-    <script>
-        let topics = JSON.parse(localStorage.getItem("topics")) || [];
-        let messages = JSON.parse(localStorage.getItem("messages")) || [];
-
+        // --- Student Functions ---
         function registerStudent(){
             let name = document.getElementById("name").value;
             let email = document.getElementById("email").value;
@@ -202,9 +178,11 @@ button:hover{
         }
 
         function showTopics(){
-            document.querySelector(".register").style.display = "none";
-            document.querySelector(".topics").style.display = "block";
-            document.querySelector(".help").style.display = "block";
+            document.getElementById("studentSection").style.display = "block";
+            document.getElementById("topicsDiv").style.display = "block";
+            document.getElementById("helpDiv").style.display = "block";
+            document.getElementById("name").style.display = "none";
+            document.getElementById("email").style.display = "none";
 
             let list = document.getElementById("topicList");
             list.innerHTML = "";
@@ -220,32 +198,19 @@ button:hover{
             alert(`You have joined: ${topics[index].title}`);
         }
 
-        function openChat(){
-            document.getElementById("chatBox").style.display = "block";
-            renderMessages();
+        // Restore logo
+        const savedLogo = localStorage.getItem("logo");
+        if(savedLogo){
+            document.getElementById("logo").src = savedLogo;
         }
 
-        function sendMessage(){
-            let input = document.getElementById("chatInput");
-            if(input.value.trim() === "") return;
-            messages.push({sender: localStorage.getItem("studentName") || "Student", text: input.value});
-            localStorage.setItem("messages", JSON.stringify(messages));
-            input.value = "";
-            renderMessages();
-        }
-
-        function renderMessages(){
-            let box = document.getElementById("messages");
-            box.innerHTML = "";
-            messages.forEach(msg=>{
-                let div = document.createElement("div");
-                div.textContent = msg.sender + ": " + msg.text;
-                box.appendChild(div);
-            });
-        }
-
+        // Show student if already registered
         if(localStorage.getItem("studentName")){
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("studentSection").style.display = "block";
             showTopics();
+        }else{
+            document.getElementById("studentSection").style.display = "block";
         }
     </script>
 </body>
