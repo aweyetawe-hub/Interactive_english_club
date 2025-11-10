@@ -2,217 +2,180 @@
 learn.speak.grow
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Language Club</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #e6f0ff; /* light blue */
-        margin: 0;
-        padding: 0;
-        color: #003366; /* dark blue text */
-    }
-    header {
-        background-color: #003366;
-        color: white;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    header img {
-        height: 50px;
-    }
-    nav button {
-        margin-left: 10px;
-        padding: 8px 15px;
-        background-color: white;
-        color: #003366;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-    nav button:hover {
-        background-color: #b3d1ff;
-    }
-    main {
-        padding: 20px;
-    }
-    .hidden {
-        display: none;
-    }
-    input, textarea, select {
-        padding: 8px;
-        margin: 5px 0 15px 0;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .btn {
-        background-color: #003366;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-    .btn:hover {
-        background-color: #002244;
-    }
-    .topic-card {
-        border: 1px solid #003366;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        background-color: white;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Club</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e6f0ff;
+            color: #003366;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header img {
+            height: 50px;
+            cursor: pointer;
+        }
+        main {
+            padding: 20px;
+        }
+        .hidden { display: none; }
+        .button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        .input-field {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .topic-card {
+            border: 1px solid #003366;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: white;
+        }
+        .flex { display: flex; gap: 10px; }
+    </style>
 </head>
 <body>
-<header>
-    <img id="logo" src="logo.png" alt="Club Logo">
-    <nav>
-        <button id="loginBtn">Login/Register</button>
-        <button id="helpBtn">Help</button>
-    </nav>
-</header>
+    <header>
+        <img id="logo" src="https://via.placeholder.com/100x50.png?text=Logo" alt="Logo">
+        <div>
+            <button class="button" id="loginBtn">Login</button>
+        </div>
+    </header>
 
-<main>
-    <!-- Login/Register -->
-    <div id="authDiv">
-        <h2>Login / Register</h2>
-        <input type="email" id="emailInput" placeholder="Enter your email">
-        <input type="password" id="passwordInput" placeholder="Enter password">
-        <button class="btn" id="loginRegisterBtn">Login / Register</button>
-        <p id="authMsg"></p>
-    </div>
+    <main>
+        <!-- Login Section -->
+        <div id="loginSection">
+            <h2>Login</h2>
+            <input type="email" id="email" class="input-field" placeholder="Email">
+            <button class="button" id="enterBtn">Enter</button>
+        </div>
 
-    <!-- Admin Panel -->
-    <div id="adminDiv" class="hidden">
-        <h2>Admin Panel</h2>
-        <input type="text" id="newTopic" placeholder="Topic Name">
-        <textarea id="newTopicDesc" placeholder="Topic Description"></textarea>
-        <input type="text" id="eventLocation" placeholder="Event Location">
-        <input type="text" id="logoURL" placeholder="Logo URL (change logo)">
-        <button class="btn" id="addTopicBtn">Add Topic</button>
-        <h3>Current Topics:</h3>
-        <div id="topicsList"></div>
-    </div>
+        <!-- Admin Section -->
+        <div id="adminSection" class="hidden">
+            <h2>Admin Panel</h2>
+            <label>Topic Name:</label>
+            <input type="text" id="topicName" class="input-field">
+            <label>Topic Description:</label>
+            <textarea id="topicDesc" class="input-field"></textarea>
+            <label>Emblem URL:</label>
+            <input type="text" id="emblemUrl" class="input-field">
+            <button class="button" id="addTopicBtn">Add Topic</button>
+            <h3>Current Topics</h3>
+            <div id="topicsList"></div>
+        </div>
 
-    <!-- User Panel -->
-    <div id="userDiv" class="hidden">
-        <h2>Welcome to Language Club!</h2>
-        <div id="userTopicsList"></div>
-    </div>
-</main>
+        <!-- Student Section -->
+        <div id="studentSection" class="hidden">
+            <h2>Available Topics</h2>
+            <div id="studentTopics"></div>
+            <button class="button" id="helpBtn">Need Help?</button>
+        </div>
+    </main>
 
-<script>
-const adminEmail = "aweyetawe@gmail.com";
+    <script>
+        const adminEmail = 'aweyetawe@gmail.com';
 
-let users = [];
-let topics = [];
+        const loginSection = document.getElementById('loginSection');
+        const adminSection = document.getElementById('adminSection');
+        const studentSection = document.getElementById('studentSection');
 
-const authDiv = document.getElementById("authDiv");
-const adminDiv = document.getElementById("adminDiv");
-const userDiv = document.getElementById("userDiv");
+        const emailInput = document.getElementById('email');
+        const enterBtn = document.getElementById('enterBtn');
 
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
-const authMsg = document.getElementById("authMsg");
+        const topicNameInput = document.getElementById('topicName');
+        const topicDescInput = document.getElementById('topicDesc');
+        const emblemUrlInput = document.getElementById('emblemUrl');
+        const addTopicBtn = document.getElementById('addTopicBtn');
+        const topicsList = document.getElementById('topicsList');
+        const studentTopics = document.getElementById('studentTopics');
 
-const loginRegisterBtn = document.getElementById("loginRegisterBtn");
+        const helpBtn = document.getElementById('helpBtn');
+        const logo = document.getElementById('logo');
 
-const newTopic = document.getElementById("newTopic");
-const newTopicDesc = document.getElementById("newTopicDesc");
-const eventLocation = document.getElementById("eventLocation");
-const logoURL = document.getElementById("logoURL");
-const addTopicBtn = document.getElementById("addTopicBtn");
-const topicsList = document.getElementById("topicsList");
-const userTopicsList = document.getElementById("userTopicsList");
+        let topics = [];
 
-const logoImg = document.getElementById("logo");
-const helpBtn = document.getElementById("helpBtn");
+        enterBtn.onclick = () => {
+            const email = emailInput.value.trim();
+            if(email === adminEmail){
+                loginSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+            } else if(email){
+                loginSection.classList.add('hidden');
+                studentSection.classList.remove('hidden');
+                renderStudentTopics();
+            } else {
+                alert('Please enter an email');
+            }
+        };
 
-let currentUser = null;
+        addTopicBtn.onclick = () => {
+            const name = topicNameInput.value.trim();
+            const desc = topicDescInput.value.trim();
+            const emblem = emblemUrlInput.value.trim() || 'https://via.placeholder.com/100x50.png?text=Logo';
+            if(name && desc){
+                topics.push({name, desc, emblem});
+                renderAdminTopics();
+                renderStudentTopics();
+                topicNameInput.value = '';
+                topicDescInput.value = '';
+                emblemUrlInput.value = '';
+            } else {
+                alert('Please fill in all fields');
+            }
+        };
 
-loginRegisterBtn.addEventListener("click", () => {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    if(!email || !password) {
-        authMsg.textContent = "Please enter email and password.";
-        return;
-    }
+        function renderAdminTopics(){
+            topicsList.innerHTML = '';
+            topics.forEach((topic, index) => {
+                const div = document.createElement('div');
+                div.className = 'topic-card';
+                div.innerHTML = `<img src='${topic.emblem}' height='50'><h4>${topic.name}</h4><p>${topic.desc}</p>`;
+                topicsList.appendChild(div);
+            });
+        }
 
-    if(email === adminEmail) {
-        currentUser = {email, role: "admin"};
-        authDiv.classList.add("hidden");
-        adminDiv.classList.remove("hidden");
-        renderTopicsAdmin();
-        authMsg.textContent = "";
-    } else {
-        currentUser = {email, role: "user", joined: []};
-        users.push(currentUser);
-        authDiv.classList.add("hidden");
-        userDiv.classList.remove("hidden");
-        renderTopicsUser();
-        authMsg.textContent = "";
-    }
-});
+        function renderStudentTopics(){
+            studentTopics.innerHTML = '';
+            topics.forEach((topic, index) => {
+                const div = document.createElement('div');
+                div.className = 'topic-card';
+                div.innerHTML = `<img src='${topic.emblem}' height='50'><h4>${topic.name}</h4><p>${topic.desc}</p><button class='button' onclick='joinEvent(${index})'>Join Event</button>`;
+                studentTopics.appendChild(div);
+            });
+        }
 
-addTopicBtn.addEventListener("click", () => {
-    const name = newTopic.value.trim();
-    const desc = newTopicDesc.value.trim();
-    const location = eventLocation.value.trim();
-    if(!name || !desc || !location) {
-        alert("Please fill all fields.");
-        return;
-    }
-    topics.push({name, desc, location});
-    newTopic.value = "";
-    newTopicDesc.value = "";
-    eventLocation.value = "";
-    renderTopicsAdmin();
-    renderTopicsUser();
-    if(logoURL.value.trim()) {
-        logoImg.src = logoURL.value.trim();
-    }
-});
+        function joinEvent(index){
+            alert(`You have joined: ${topics[index].name}`);
+        }
 
-function renderTopicsAdmin() {
-    topicsList.innerHTML = "";
-    topics.forEach((t,i) => {
-        const div = document.createElement("div");
-        div.className = "topic-card";
-        div.innerHTML = `<strong>${t.name}</strong><p>${t.desc}</p><p>Location: ${t.location}</p>`;
-        topicsList.appendChild(div);
-    });
-}
+        helpBtn.onclick = () => {
+            window.location.href = 'mailto:aweyetawe@gmail.com';
+        };
 
-function renderTopicsUser() {
-    userTopicsList.innerHTML = "";
-    topics.forEach((t,i) => {
-        const div = document.createElement("div");
-        div.className = "topic-card";
-        div.innerHTML = `<strong>${t.name}</strong><p>${t.desc}</p><p>Location: ${t.location}</p><button class="btn" onclick="joinTopic(${i})">Join Event</button>`;
-        userTopicsList.appendChild(div);
-    });
-}
-
-function joinTopic(index) {
-    if(currentUser.role !== "user") return;
-    if(!currentUser.joined.includes(index)) {
-        currentUser.joined.push(index);
-        alert(`You joined "${topics[index].name}"`);
-    } else {
-        alert("You already joined this event.");
-    }
-}
-
-helpBtn.addEventListener("click", () => {
-    window.location.href = "mailto:aweyetawe@gmail.com";
-});
-</script>
+        logo.onclick = () => {
+            alert('This is the Language Club');
+        };
+    </script>
 </body>
 </html>
+
